@@ -6,6 +6,7 @@ import Options.CardType;
 import Cards.SkiPass;
 import Options.NumberOfDays;
 import Options.NumberOfRides;
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -14,11 +15,10 @@ import java.util.List;
 
 public class SkiPassSystem {
     private int ID = 0;
-    List<SkiPass> registry = new ArrayList<>();
-    List<Integer> blocked = new ArrayList<>();
+    @Getter
+    private final List<SkiPass> registry = new ArrayList<>();
     private final HashMap<NumberOfDays, Integer> daysToInt = new HashMap<>();
     private final HashMap<NumberOfRides, Integer> ridesToInt = new HashMap<>();
-
 
     public SkiPassSystem() {
         daysToInt.put(NumberOfDays.ONE_DAY, 1);
@@ -39,15 +39,11 @@ public class SkiPassSystem {
     }
 
     public boolean createNewCard(CardType type, NumberOfDays number) {
-        if (type == CardType.WEEKDAYS) {
-            LocalDate endData = LocalDate.ofYearDay(LocalDate.now().getYear(),
-                    LocalDate.now().getDayOfYear() + daysToInt.get(number));
-            registry.add(new SkiPassByTime(generateNewId(), type, endData));
-            return true;
-        }
-        else if (type == CardType.WEEKENDS && number != NumberOfDays.FIVE_DAYS) {
-            LocalDate endData = LocalDate.ofYearDay(LocalDate.now().getYear(),
-                    LocalDate.now().getDayOfYear() + daysToInt.get(number));
+        int year = LocalDate.now().getYear();
+        int dayOfYear = LocalDate.now().getDayOfYear();
+
+        if (type == CardType.WEEKDAYS || (type == CardType.WEEKENDS && number != NumberOfDays.FIVE_DAYS)) {
+            LocalDate endData = LocalDate.ofYearDay(year, dayOfYear + daysToInt.get(number) - 1);
             registry.add(new SkiPassByTime(generateNewId(), type, endData));
             return true;
         }
